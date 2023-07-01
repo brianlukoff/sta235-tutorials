@@ -1,0 +1,144 @@
+---
+title: "1. Simple Regression"
+output: 
+  learnr::tutorial
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+knitr::opts_chunk$set(echo = FALSE)
+
+set.seed(12345)
+xs <- rnorm(52, 2000, 300)
+e <- rnorm(52, 0, 300)
+ys <- 2.4 * xs + e
+adspend <- data.frame(spending=xs, revenue=ys)
+set.seed(NULL)
+xs <- rnorm(52, 2000, 300)
+e <- rnorm(52, 0, 300)
+ys <- 2.4 * xs + e
+adspend2024 <- data.frame(spending=xs, revenue=ys)
+```
+
+```{css echo=FALSE}
+.lc {
+  background-color: hsl(210, 100%, 96%);
+  border-radius: 4px;
+  padding: 1em;
+}
+.lc p {
+  margin-bottom: 0;
+}
+.lc p:before {
+  content: 'Learning Catalytics question: ';
+  font-weight: bold;
+}
+```
+
+## Data Exploration
+
+*The dataset we will be using is called `adspend`. In it are two columns: weekly expenditures on ads called `spending`, with the revenues associated with it called `revenue`. *
+
+### Histograms
+
+Fill in the spaces after the equals signs with the appropriate variable name to create a histogram of the ad expenditures:
+```{r spend-hist, exercise=TRUE}
+ggplot(data=adspend)+
+  geom_histogram(aes(x=))
+```
+
+
+Now do the same for weekly revenue:
+```{r revenue-hist, exercise=TRUE}
+ggplot(data=adspend)+
+  geom_histogram(aes(x=))
+```
+
+
+### Scatterplots
+
+Let's put them together, choose the appropriate variable name to fill in after each equals sign
+```{r adspend-plot, exercise=TRUE}
+ggplot(data=adspend)+
+  geom_point(aes(x=, y=))
+```
+
+### Correlation
+One way to measure the strength of a linear relationship is to measure the correlation coefficient. Complete the following code:
+```{r adspend-cor, exercise=TRUE}
+with(data=adspend, 
+     cor(x=, y=)
+     )
+```
+Does there seem to be a weak, moderate, or strong correlation?
+
+::: {.lc}
+Answer Questions 1-2 in Learning Catalytics now.
+:::
+
+
+## Linear Regression
+
+### Building a linear model
+
+*Now we want to fit a line that best describes the data. To do this, we'll use least squares regression. In R we can do this using the `lm` function. The `lm` function takes a formula of the form `y~x`. Since we want to use the results of this model later, we're going to store the model in a variable called `lm1`.*
+
+Modify the following code so that instead of `x` and `y`, we use the variable names in our dataset. Don't forget to specify the dataset name after the `data=`! Be sure to think carefully about what variable should be the dependent variable and which should be the independent variable. We'll call `summary()` on the model we saved to see our results
+
+```{r first-lm, exercise=TRUE}
+lm1 <- lm(y~x, data=)
+
+summary(lm1)
+```
+
+You should be able to answer the following:
+
+- What is the average weekly revenue when $0 is spent on advertising?
+
+- How much does the average weekly revenue increase for each additional dollar spent on advertising, on average?
+
+- Is the coefficient for ad spending statistically significant?
+
+### Confidence intervals for coefficients
+
+```{r lm1-setup}
+lm1 <- lm(revenue~spending, data=adspend)
+```
+
+To obtain confidence intervals for the *coefficients* we use the `confint` function
+Within the parentheses, write the saved model name we just created.
+
+```{r confint-lm1, exercise=TRUE, exercise.setup="lm1-setup"}
+confint()
+```
+
+## Predictions
+
+*While we could compute predictions by hand, as we have more and more variables in our model, this gets pretty unwieldy pretty fast! The `predict` function in R takes a model object, and a new data argument to give you predictions based on the new data. *
+
+### Point Predictions
+
+The code below uses the previously built model to predict revenue if ad spending was \$2000. What is your prediction for revenue if our spending on ads was $3000?
+
+```{r predict-lm1, exercise=TRUE, exercise.setup="lm1-setup", exercise.eval=TRUE}
+predict(lm1, list(spending=2000))
+```
+
+### Prediction intervals
+*What if we wanted to know how confident we were about a prediction? Just as we create confidence intervals for coefficients to measure our uncertainty about them, we can do the same for our predictions!*
+
+A prediction interval tells us how confident we are about a single week's revenue with spending equal to \$2000.
+```{r predict-lm1-pred, exercise=TRUE, exercise.setup="lm1-setup", exercise.eval=TRUE}
+predict(lm1, list(spending=2000), interval='prediction')
+```
+### Confidence intervals for predictions
+ 
+A confidence interval for a prediction tells us how confident we are about the average of weekly revenues that had spending equal to \$2000.
+
+```{r predict-lm1-conf, exercise=TRUE, exercise.setup="lm1-setup", exercise.eval=TRUE}
+predict(lm1, list(spending=2000), interval='confidence')
+```
+
+Which interval was wider? Are we more confident about averages or individuals?
